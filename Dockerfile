@@ -1,16 +1,15 @@
-FROM python:3.9-slim-buster
-
+# Base Image
+FROM python:3.9
+RUN pip install --upgrade pip
+# Install necessary system packages
+RUN apt-get update && apt-get install -y libgl1-mesa-glx
+# Copy your application code
+COPY . /app
+# Set the working directory
 WORKDIR /app
-
-COPY requirements.txt .
-
-RUN apt-get update && apt-get install -y libgl1-mesa-dev libglib2.0-0
-
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
+# Install Python dependencies
+RUN pip install -r requirements.txt
+# Expose the necessary port
 EXPOSE 8000
-
-
-CMD ["waitress-serve", "--host=0.0.0.0", "--port=8000", "app:app"]
+# Start the application
+CMD gunicorn -b 0.0.0.0:8000 app:app
